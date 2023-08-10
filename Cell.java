@@ -1,26 +1,24 @@
-import HAL.*;
-import HAL.GridsAndAgents.Agent2DBase;
-import HAL.GridsAndAgents.AgentSQ2Dunstackable;
 
-import java.util.*;
-import java.io.*;
+import HAL.GridsAndAgents.AgentSQ2Dunstackable;
 import java.lang.String;
 
 
 
 public class Cell extends AgentSQ2Dunstackable<SimpleGrid>{
     //cell characteristics
-    String cellType;
+    static String cellType;
     double replicationRate;
     double deathRate;
     //double mutationRate; 
     //double resistanceRate;
 
-    public Cell(String cellType, double replicationRate, double deathRate){
-        this.cellType = cellType;
-        this.replicationRate = replicationRate;
-        this.deathRate = deathRate;
-    }
+    //CONSTRUCTOR NOT NEEDED ACCORDING TO HAL DOCUMENTATION?
+    
+    // public Cell(String cellType, double replicationRate, double deathRate){
+    //     this.cellType = cellType;
+    //     this.replicationRate = replicationRate;
+    //     this.deathRate = deathRate;
+    // }
 
     public String getCellType() {
         return cellType;
@@ -32,6 +30,14 @@ public class Cell extends AgentSQ2Dunstackable<SimpleGrid>{
 
     public double getDeathRate() {
         return deathRate;
+    }
+
+    public void setReplicationRate(double newReplicationRate) {
+        this.replicationRate = newReplicationRate;
+    }
+
+    public void setDeathRate(double newDeathRate) {
+        this.deathRate = newDeathRate;
     }
   
 
