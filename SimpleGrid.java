@@ -23,14 +23,6 @@ Note: the way the HAL library is defined; agents are not constructed by you but 
 
 
 public class SimpleGrid extends AgentGrid2D<Cell> implements SerializableModel{
-    /*------------------------------------------
-                GRID CHARACTERISTICS
-     ------------------------------------------*/
-
-    int xDim;
-    int yDim;
-
-
    /*------------------------------------------
                  CONSTRUCTORS
      ------------------------------------------*/
@@ -59,6 +51,7 @@ public class SimpleGrid extends AgentGrid2D<Cell> implements SerializableModel{
 
     int xDim= 100;
     int yDim = 100;
+
     int[] divHood = Util.VonNeumannHood(false); // 4 neighbors
     //int[] divHood = Util.MooreHood(false); // 8 neighbors-- doesn't make sense for fusion 
     public double initRadius = 10;
@@ -90,7 +83,8 @@ public class SimpleGrid extends AgentGrid2D<Cell> implements SerializableModel{
      ------------------------------------------*/
 
      FileIO cellCountLogFile = null;
-     String cellCountLo
+     String cellCountLogFileName = "./data/cellCountLog.csv";
+
 
 
 
