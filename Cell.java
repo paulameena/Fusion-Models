@@ -1,6 +1,10 @@
 
 import HAL.GridsAndAgents.AgentSQ2Dunstackable;
 import java.lang.String;
+import HAL.Gui.GridWindow;
+import HAL.GridsAndAgents.AgentGrid2D;
+import HAL.Rand;
+import HAL.Util;
 
 
 
@@ -63,12 +67,31 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
             Dispose();
             return;
         }
-        if (G.rng.Double() < G.replicationRate) {
-            int nOptions = G.MapEmptyHood(G.VonNeumannHood, Xsq(), Ysq());
+        if (G.rng.Double() < this.divRate) {
+            int nOptions = G.MapEmptyHood(G.divHood, Xsq(), Ysq());
             if(nOptions>0) {
-                G.NewAgentSQ(G.VonNeumannHood[G.rng.Int(nOptions)]).;
+                int iDaughter = G.divHood[G.rng.Int(nOptions)];
+                Cell daughter = G.NewAgentSQ(iDaughter);
+
+                if( this.resistanceRate > 0){
+                    if (G.rng.Double() < resistanceRate) {
+                        daughter.cellType = "r";
+                        daughter.deathRate = G.dieProbs[1];
+                        daughter.divRate = G.divProbs[1];
+                        daughter.resistanceRate = G.resistanceRates[1];
+                        return;
+                    }
+                }
+                // else inherit the properties of this cell
+                //TODO: update later to  introduce more heterogeneity with division, even within cell types
+                daughter.cellType = this.cellType;
+                daughter.deathRate = this.deathRate;
+                daughter.resistanceRate = this.resistanceRate;
+                daughter.divRate = this.divRate;
             }
         }
+         //otherwise nothing happens and the function returns
+            return;
     }
   
 

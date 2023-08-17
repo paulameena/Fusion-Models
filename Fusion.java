@@ -74,7 +74,7 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
                 CELL PARAMETERS
      ------------------------------------------*/
 
-    //TODO: might want to change these to be a function that samples from a distribution with different centers, to create more variability between the cell types/introduce more heterogeneity
+    //TODO: might want to change these to be functions/distributions, to create more variability between the cell types/introduce more heterogeneity
     //index = 0 is parental, index = 1 is resistant, index = 2 will be fused
     double[] dieProbs = new double[]{0.1,0.1}; // death probability
     double[] resistanceRates = new double[]{0.0001,0}; // mutation rate to resistant from parental/sensitive; if already sensitive, does nothing
