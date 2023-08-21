@@ -155,9 +155,10 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
         for (Cell c : this) {
             c.Step();
         }
-        // CleanAgents(); // not sure what these are for/ why included?
-        // ShuffleAgents(rng);
+        CleanAgents(); // remove dead agents
+        ShuffleAgents(rng); //change iteration order so not acting on cells in chronological order
     }
+   
     // public void Draw(GridWindow vis){
     //     for (int i = 0; i < vis.length; i++) {
     //         Cell c = GetAgent(i);
