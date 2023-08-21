@@ -17,6 +17,7 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
     double divRate;
     double resistanceRate;
     double deathRate;
+    double fusionRate;
     
 
     //CONSTRUCTOR NOT NEEDED ACCORDING TO HAL DOCUMENTATION?
@@ -62,16 +63,46 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
      ------------------------------------------*/
      //NOTE: ADAPTED FROM HAL DOCUMENTATION AND BIRTHDEATH.JAVA FROM HAL DOCS
 
-    public void Step() {
+    private boolean Fuse() {
+         double fusProb = G.rng.Double(); // need to create
+         int fusOptions = G.MapOccupiedHood(G.fusHood, Xsq(), Ysq()); //can only fuse if in contact with another cell
+         //Q: How to check with cells in occupied-- parental, resistant? 
+         // Maybe first iteration, we don't care? But realistically should be limited to res-res or parental-resistant 
+         if (fusProb < this.fusionRate & fusOptions > 0){
+            int iTarget = G.fusHood[G.rng.Int(fusOptions)];
+            Cell target = G.AllAgents().get(iTarget); 
+            target.Die(); //not sure if this works? maybe? eshan thinks it'll throw an error
+            //Q: is the index grabbed by the MapHood functions limited from 0-7 or does it span the whole grid?
+            this.Die();
+            Cell fusedCell = G.NewAgentSQ(iTarget);
+            fusedCell.cellType = "f";
+            fusedCell.deathRate = G.dieProbs[2];
+            fusedCell.resistanceRate = G.resistanceRates[2];
+            fusedCell.divRate = G.divProbs[2];
+            G.UpdateCellCounts(fusedCell);
+            return true;
+         }
+         else {
+            return false;
+         }
+    }
+
+    private boolean Die(){
         if (G.rng.Double() < this.deathRate) {
+            G.UpdateCellDeath(this);
             Dispose();
-            return;
+            return true;
         }
-        if (G.rng.Double() < this.divRate) {
-            int nOptions = G.MapEmptyHood(G.divHood, Xsq(), Ysq());
-            if(nOptions>0) {
-                int iDaughter = G.divHood[G.rng.Int(nOptions)];
-                Cell daughter = G.NewAgentSQ(iDaughter);
+        return false;
+    }
+
+    private boolean Replicate(){
+        double divProb = G.rng.Double();
+        int divOptions = G.MapEmptyHood(G.divHood, Xsq(), Ysq()); //can only divide if no cell there
+
+        if (divProb < this.divRate & divOptions > 0) {
+             int iDaughter = G.divHood[G.rng.Int(divOptions)];
+             Cell daughter = G.NewAgentSQ(iDaughter);
 
                 if( this.resistanceRate > 0){
                     if (G.rng.Double() < resistanceRate) {
@@ -79,7 +110,8 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
                         daughter.deathRate = G.dieProbs[1];
                         daughter.divRate = G.divProbs[1];
                         daughter.resistanceRate = G.resistanceRates[1];
-                        return;
+                        G.UpdateCellCounts(daughter);
+                        return true;
                     }
                 }
                 // else inherit the properties of this cell
@@ -88,10 +120,74 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
                 daughter.deathRate = this.deathRate;
                 daughter.resistanceRate = this.resistanceRate;
                 daughter.divRate = this.divRate;
+                G.UpdateCellCounts(daughter);
+                return true;
+        }
+        return false;
+    }
+
+    /* STEP FUNCTION
+     *  
+     *  modelType = parameter to specify priority order e.g. DRF = dieReplicateFuse (in that order). Order may change evolutionary trajectory
+     * 
+     */
+    public void Step(String modelType) { 
+
+        if (modelType.equals("drf")) {
+            boolean first = this.Die();
+
+            if (!first) {
+                boolean next = this.Replicate();
+                if (!next) {
+                    this.Fuse();
+                    return;
+                }
             }
         }
+        else if (modelType.equals("dfr")) {
+             boolean first = this.Die();
+
+            if (!first) {
+                boolean next = this.Fuse();
+                if (!next) {
+                    this.Replicate();
+                    return;
+                }
+            }
+        }
+        else if (modelType.equals("rdf")) {
+             boolean first = this.Replicate();
+
+            if (!first) {
+                boolean next = this.Die();
+                if (!next) {
+                    this.Fuse();
+                    return;
+                }
+            }
+
+        }
+        else if (modelType.equals("rfd")) {
+             boolean first = this.Replicate();
+
+            if (!first) {
+                boolean next = this.Fuse();
+                if (!next) {
+                    this.Die();
+                    return;
+                }
+            }
+
+        } 
+        else {
          //otherwise nothing happens and the function returns
             return;
+        }
+    }
+
+    public void Step() {
+        this.Step("drf");
+        return;
     }
   
 

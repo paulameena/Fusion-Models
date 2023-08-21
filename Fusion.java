@@ -7,6 +7,10 @@ import HAL.Util;
 //import java.io.*;
 import HAL.GridsAndAgents.AgentGrid2D;
 import HAL.Tools.FileIO;
+
+import java.util.Dictionary;
+import java.util.Hashtable;
+
 //import HAL.Gui.GridWindow;
 //import HAL.Gui.UIGrid;
 import HAL.Rand;
@@ -32,7 +36,6 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
                  CONSTRUCTORS
      ------------------------------------------*/
 
-
     public Fusion(int x, int y) {
         super(x, y, Cell.class);
         this.xDim = x;
@@ -56,7 +59,8 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
 
     int xDim= 100;
     int yDim = 100;
-    int[] divHood = HAL.Util.VonNeumannHood(false); // 4 neighbors
+    int[] divHood = HAL.Util.MooreHood(false); // 8 neighbors for division
+    int[] fusHood = HAL.Util.MooreHood(false); //8 neighbors for fusion
     Rand rng=new Rand(); 
     //double replicationRate = 0.2; // birth probability
     //double deathRate = 0.01; // death probability
@@ -70,6 +74,8 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     int initWidth = 100;
     double initDEnsity = 0.01;
 
+    Hashtable<String, Integer> cellTypeCounts = new Hashtable<>();
+
     /*------------------------------------------
                 CELL PARAMETERS
      ------------------------------------------*/
@@ -79,6 +85,7 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     double[] dieProbs = new double[]{0.1,0.1}; // death probability
     double[] resistanceRates = new double[]{0.0001,0}; // mutation rate to resistant from parental/sensitive; if already sensitive, does nothing
     double[] divProbs = new double[]{0.1,0.2}; // probability of division for each cell type
+    double[] fusionRate = new double[]{0.0001, 0.0001};
 
    /*------------------------------------------
                 SIMULATION PARAMETERS
@@ -102,9 +109,21 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
      ------------------------------------------*/
      //NOTE: ADAPTED FROM HAL DOCUMENTATION AND BIRTHDEATH.JAVA FROM HAL DOCS
 
+    public void UpdateCellCounts(Cell c) {
+        this.cellTypeCounts.replace(c.cellType, this.cellTypeCounts.get(c.cellType) + 1);
+    }
+
+    public void UpdateCellDeath(Cell c) {
+        this.cellTypeCounts.replace(c.cellType, this.cellTypeCounts.get(c.cellType) - 1);
+    }
+
     public void InitializeTumor(double radius, String shape){
         int[] coords;
         int nCoords;
+        //initialize cell counts to 0
+        this.cellTypeCounts.put("f", 0);
+        this.cellTypeCounts.put("r",0);
+        this.cellTypeCounts.put("p", 0);
         if (shape.equals("circle")) {
             coords= Util.CircleHood(true,radius);
             nCoords= MapHood(coords,xDim/2,yDim/2);
@@ -119,13 +138,14 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
                     c.cellType = "r";
                     c.divRate = divProbs[1];
                     c.deathRate = dieProbs[1];
-                    c.resistanceRate = 0; //already resistant!  
+                    c.resistanceRate = 0; //already resistant!
                 } else {
                     c.cellType = "p";
                     c.divRate = divProbs[0];
                     c.deathRate = dieProbs[0];
                     c.resistanceRate = resistanceRates[0];
                 }
+        UpdateCellCounts(c);
         }
     }
 
