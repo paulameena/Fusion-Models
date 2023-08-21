@@ -1,3 +1,5 @@
+package Fusion;
+
 // Written by: Paulameena Shultes
 //**ADAPTED FROM HAL DOCUMENTATION AND GITHUB.COM/ESHANKING/HAL_DOSE_RESPONSE.GIT**
 // Date: 08/10/2023
@@ -8,7 +10,7 @@ import HAL.Util;
 import HAL.GridsAndAgents.AgentGrid2D;
 import HAL.Tools.FileIO;
 
-import java.util.Dictionary;
+//import java.util.Dictionary;
 import java.util.Hashtable;
 
 //import HAL.Gui.GridWindow;
@@ -73,6 +75,7 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     String initGeom = "circle"; // "circle" or "square" inital population; tumor assumptions favor circle
     int initWidth = 100;
     double initDEnsity = 0.01;
+    String modelType = "drf";
 
     Hashtable<String, Integer> cellTypeCounts = new Hashtable<>();
 
@@ -153,7 +156,7 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
 
     public void Step() {
         for (Cell c : this) {
-            c.Step();
+            c.Step(this.modelType);
         }
         CleanAgents(); // remove dead agents
         ShuffleAgents(rng); //change iteration order so not acting on cells in chronological order
