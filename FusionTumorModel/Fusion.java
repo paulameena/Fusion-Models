@@ -1,8 +1,9 @@
-package Fusion;
+package FusionTumorModel;
 
 // Written by: Paulameena Shultes
 //**ADAPTED FROM HAL DOCUMENTATION AND GITHUB.COM/ESHANKING/HAL_DOSE_RESPONSE.GIT**
 // Date: 08/10/2023
+
 import HAL.Interfaces.SerializableModel;
 import HAL.Util;
 //import java.util.*;
@@ -64,6 +65,7 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     int[] divHood = HAL.Util.MooreHood(false); // 8 neighbors for division
     int[] fusHood = HAL.Util.MooreHood(false); //8 neighbors for fusion
     Rand rng=new Rand(); 
+    int seed = 0; //option for reproducibility
     //double replicationRate = 0.2; // birth probability
     //double deathRate = 0.01; // death probability
     //double fusionRate = 0.1; //fusion probability
@@ -74,8 +76,13 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     public double initMutProp=0.1;
     String initGeom = "circle"; // "circle" or "square" inital population; tumor assumptions favor circle
     int initWidth = 100;
-    double initDEnsity = 0.01;
+    double initDensity = 0.01;
     String modelType = "drf";
+    boolean fusion_present = false;
+    
+    /*------------------------------------------
+                MODEL TRACKING
+     ------------------------------------------*/
 
     Hashtable<String, Integer> cellTypeCounts = new Hashtable<>();
 
@@ -85,10 +92,20 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
 
     //TODO: might want to change these to be functions/distributions, to create more variability between the cell types/introduce more heterogeneity
     //index = 0 is parental, index = 1 is resistant, index = 2 will be fused
-    double[] dieProbs = new double[]{0.1,0.1}; // death probability
-    double[] resistanceRates = new double[]{0.0001,0}; // mutation rate to resistant from parental/sensitive; if already sensitive, does nothing
-    double[] divProbs = new double[]{0.1,0.2}; // probability of division for each cell type
-    double[] fusionRate = new double[]{0.0001, 0.0001};
+    double parDieProb = 0.01; // parental death probability
+    double resDieProb = 0.01; // resistant death probability
+    double fusDieProb = 0.01; // fused death probability
+
+    double parMutProb = 0.0001; // parental mutation probability
+    double resMutProb = 0; // resistant mutation probability
+    double fusMutProb = 0; // fused mutation probability
+
+    double parDivProb = 0.2; // parental replication probability
+    double resDivProb = 0.1; // resistant replication probability
+    double fusDivProb = 0.1; // fused replication probability
+
+
+    double fusionRate = 0.0001; //TODO: change this to be specific to different cell types e.g. only parental-res. can fuse!
 
    /*------------------------------------------
                 SIMULATION PARAMETERS
@@ -112,6 +129,10 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
      ------------------------------------------*/
      //NOTE: ADAPTED FROM HAL DOCUMENTATION AND BIRTHDEATH.JAVA FROM HAL DOCS
 
+    private void SetSeed(int seed) {
+        this.rng = new Rand(seed);
+    }
+
     public void UpdateCellCounts(Cell c) {
         this.cellTypeCounts.replace(c.cellType, this.cellTypeCounts.get(c.cellType) + 1);
     }
@@ -119,8 +140,6 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     public void UpdateCellDeath(Cell c) {
         this.cellTypeCounts.replace(c.cellType, this.cellTypeCounts.get(c.cellType) - 1);
     }
-
-
 
     public void InitializeTumor(double radius, String shape){
         int[] coords;
@@ -141,14 +160,14 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
                 Cell c = NewAgentSQ(coords[i]);
                 if (rng.Double() < initResProb) {
                     c.cellType = "r";
-                    c.divRate = divProbs[1];
-                    c.deathRate = dieProbs[1];
-                    c.resistanceRate = 0; //already resistant!
+                    c.divRate = resDivProb;
+                    c.deathRate = resDieProb;
+                    c.resistanceRate = resMutProb; //already resistant! so should be 0
                 } else {
                     c.cellType = "p";
-                    c.divRate = divProbs[0];
-                    c.deathRate = dieProbs[0];
-                    c.resistanceRate = resistanceRates[0];
+                    c.divRate = parDivProb;
+                    c.deathRate = parDieProb;
+                    c.resistanceRate = parMutProb;
                 }
         UpdateCellCounts(c);
         }

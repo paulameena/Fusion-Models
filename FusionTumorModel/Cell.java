@@ -1,3 +1,4 @@
+package FusionTumorModel;
 
 import HAL.GridsAndAgents.AgentSQ2Dunstackable;
 import java.lang.String;
@@ -76,9 +77,9 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
             this.Die();
             Cell fusedCell = G.NewAgentSQ(iTarget);
             fusedCell.cellType = "f";
-            fusedCell.deathRate = G.dieProbs[2];
-            fusedCell.resistanceRate = G.resistanceRates[2];
-            fusedCell.divRate = G.divProbs[2];
+            fusedCell.deathRate = G.fusDieProb;
+            fusedCell.resistanceRate = G.fusMutProb;
+            fusedCell.divRate = G.fusDivProb;
             G.UpdateCellCounts(fusedCell);
             return true;
          }
@@ -107,9 +108,9 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
                 if( this.resistanceRate > 0){
                     if (G.rng.Double() < resistanceRate) {
                         daughter.cellType = "r";
-                        daughter.deathRate = G.dieProbs[1];
-                        daughter.divRate = G.divProbs[1];
-                        daughter.resistanceRate = G.resistanceRates[1];
+                        daughter.deathRate = G.resDieProb;
+                        daughter.divRate = G.resDivProb;
+                        daughter.resistanceRate = G.resMutProb;
                         G.UpdateCellCounts(daughter);
                         return true;
                     }
