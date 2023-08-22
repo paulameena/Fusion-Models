@@ -11,6 +11,7 @@ import HAL.Util;
 import HAL.GridsAndAgents.AgentGrid2D;
 import HAL.Tools.FileIO;
 
+import java.time.LocalDateTime;
 //import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -85,6 +86,11 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
      ------------------------------------------*/
 
     Hashtable<String, Integer> cellTypeCounts = new Hashtable<>();
+    int timeIndex = 0;
+    boolean saveModelState = false;
+    FileIO cellTypeCountLogFile = null;
+    String cellTypeCountLogFileName = "./data/cellTypeCountLog_" +  LocalDateTime.now().toString() + ".csv";
+
 
     /*------------------------------------------
                 CELL PARAMETERS
@@ -105,6 +111,9 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     double fusDivProb = 0.1; // fused replication probability
 
 
+   
+
+
     double fusionRate = 0.0001; //TODO: change this to be specific to different cell types e.g. only parental-res. can fuse!
 
    /*------------------------------------------
@@ -122,17 +131,66 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
      FileIO cellCountLogFile = null;
      String cellCountLogFileName = "./data/cellCountLog.csv";
 
-
-
-    /*------------------------------------------
-                MODEL FUNCTIONS
-     ------------------------------------------*/
+/*-------------------------------------------------------------
+         HOUSEKEEPING FUNCTIONS: SAVE AND LOAD PARAMS, etc.
+     -----------------------------------------------------------*/
      //NOTE: ADAPTED FROM HAL DOCUMENTATION AND BIRTHDEATH.JAVA FROM HAL DOCS
-
-    private void SetSeed(int seed) {
+    
+    public void SetSeed(int seed) {
         this.rng = new Rand(seed);
     }
 
+    public void SetDieProbs(double parProb, double resProb, double fusProb) {
+        this.parDieProb = parProb;
+        this.resDieProb = resProb;
+        this.fusDieProb = fusProb;
+    }
+    public void SetMutProbs(double parProb, double resProb, double fusProb) {
+        this.parMutProb = parProb;
+        this.resMutProb = resProb;
+        this.fusMutProb = fusProb;
+    }
+
+    public void SetDivProbs(double parProb, double resProb, double fusProb) {
+        this.parDivProb = parProb;
+        this.resDivProb = resProb;
+        this.fusDivProb = fusProb;
+    }
+
+    public void SetFusionRate(double fusRate) {
+        this.fusionRate = fusRate;
+    }
+
+    public void SetInitModelConds(double r, int xDim, int yDim, double mutProp, String initGeom, 
+        int initWidth, double initDensity, String modelType, boolean fusion_on) {
+            this.initRadius = r;
+            this.initMutProp = mutProp;
+            this.initGeom = initGeom;
+            this.initWidth = initWidth;
+            this.initDensity = initDensity;
+            this.modelType = modelType;
+            this.fusion_present = fusion_on;
+        }
+    
+    public void SetSimulationParams(int maxTime, double timeStep, int nReplicates) {
+        this.maxTime = maxTime;
+        this.nReplicates = nReplicates;
+        this.timeStep= timeStep;
+    }
+
+
+    /*------------------------------------------
+                KEY MODEL FUNCTIONS
+     ------------------------------------------*/
+     //NOTE: ADAPTED FROM HAL DOCUMENTATION AND BIRTHDEATH.JAVA FROM HAL DOCS
+
+    private void turnFusionOff() {
+         if (!this.fusion_present) { //make sure to set fusion rate to 0 if fusion is toggled off for this run
+        this.fusDivProb = 0;
+    }
+    }
+
+    
     public void UpdateCellCounts(Cell c) {
         this.cellTypeCounts.replace(c.cellType, this.cellTypeCounts.get(c.cellType) + 1);
     }
@@ -148,6 +206,8 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
         this.cellTypeCounts.put("f", 0);
         this.cellTypeCounts.put("r",0);
         this.cellTypeCounts.put("p", 0);
+        this.turnFusionOff(); //see if need to turn fusion off
+
         if (shape.equals("circle")) {
             coords= Util.CircleHood(true,radius);
             nCoords= MapHood(coords,xDim/2,yDim/2);

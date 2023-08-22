@@ -1,5 +1,6 @@
 package FusionTumorModel;
 
+import HAL.lib.CommandLine;
 import HAL.lib.CommandLine.*;
 
 
@@ -27,6 +28,8 @@ public class ConfigureModel {
     String initGeom = dummy.initGeom;
     @Option(names = { "-d0", "--initialDensity"}, description="Initial population density") 
     double initDensity = dummy.initDensity;
+    @Option(names = { "-r0", "--initRadius"}, description="Initial population radius") 
+    double initRadius = dummy.initRadius;
     @Option(names = { "-pM", "--pMutant"}, description="Initial mutant proportion") 
     double initMutProp = dummy.initMutProp;
     @Option(names = { "-dt", "--dt"}, description="Time step in days.") 
@@ -35,6 +38,8 @@ public class ConfigureModel {
     int maxTime = dummy.maxTime;
     @Option(names = { "-f", "--fusionOnOff"}, description="Boolean Fusion On or Off.")
     boolean fusion_present = dummy.fusion_present;
+    @Option(names = { "-mT", "--modelType"}, description="Model Type e.g. 'death-resistance-fuse model' = 'drf'.")
+    String modelType = dummy.modelType;
 
     // ------------------------- Cell Properties -------------------------
     @Option(names = { "-parDieProb", "--parDieProb"}, description="Probability of parental cell death")
@@ -81,7 +86,10 @@ public class ConfigureModel {
     // @Option(names = { "--saveFinalPopGrid"}, description="Save final population grid") 
     // Boolean saveFinalPopGrid;
 
-     
+     public static void main(String[ ] args) {
+        int exitCode = new CommandLine(new ConfigureModel()).execute(args);
+        System.exit(exitCode);
+    }
 
 
 
