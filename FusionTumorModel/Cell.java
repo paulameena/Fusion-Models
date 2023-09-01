@@ -1,17 +1,43 @@
+/* Define the characteristics for cells in my model
+ * 
+ * Written by:Paulameena Shultes @paulameena
+ * date last updated: 8/31/2023
+ * 
+ * adapted from: @eshanking and @ebaratch HAL models
+ */
+
+
 package FusionTumorModel;
 
 import HAL.GridsAndAgents.AgentSQ2Dunstackable;
+//import Models.FusionModelEtienne.FusionModel2DHeterogeneityContactInhibition.FusionModelContactInhibition;
+//import FusionProject.Spatial.AgentBasedModels.Models.FusionModelEtienne.FusionModel2DHeterogeneityContactInhibition.*;
+
 import java.lang.String;
-// import HAL.Gui.GridWindow;
+import java.io.PrintWriter;
+import java.util.BitSet;
+import Framework.Gui.Window2DOpenGL;
+import HAL.Util.*;
+import HAL.Gui.*;
+import Framework.Util.*;
 // import HAL.GridsAndAgents.AgentGrid2D;
 // import HAL.Rand;
 // import HAL.Util;
 
 
 
+
+//note that @ebaratch cell type is spherical so that can adjust size of each cell-- fusion cells tend to be bigger than regular cells
+// for now keeping with @eshanking's model and making all cells the same size; can adapt if makes results drastically different
 public class Cell extends AgentSQ2Dunstackable<Fusion>{
     //cell characteristics
-     String cellType; //options are p, r, or f
+    String cellType; //options are p, r, or f
+    int color; //color of cell in visualization
+    boolean dead; //has the cell been exhausted yet
+    int[] genotype; //genotype of cell (0 = wildtype, 1 = mutation)
+    //double cell_radius; //radius of cell
+
+    
     
     //making these cell-type specific (instead of model-specific) so unique phenotypic behaviors can be adopted later
     //double mutationRate; 
@@ -32,6 +58,18 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
      /*------------------------------------------
                HOUSEKEEPING FUNCTIONS
      ------------------------------------------*/
+     public int GetColor() {
+        return color;
+     }
+
+     public void SetColor(int color) {
+        this.color = color;
+     }
+     
+     public boolean IsDead() {
+        return dead;
+     }
+
      public String getCellType() {
         return cellType;
     }
@@ -63,6 +101,32 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
                 KEY FUNCTIONS
      ------------------------------------------*/
      //NOTE: ADAPTED FROM HAL DOCUMENTATION AND BIRTHDEATH.JAVA FROM HAL DOCS
+     //SOME FUNCTIONS WERE DEFINED IN @EBARATCH'S CODE BUT INHERITANCE DIDN'T WORK SO I COPIED THEM HERE
+
+     //Genomes recombination function
+     //SOURCE: @ebaratch
+    public void Blendind(int[] Genotype1,int[] Genotype2){
+
+        int tempBit=0;
+        for (int i=0;i<G.allele_num;i++){
+            if(G.rng.Double()<0.5) {
+                tempBit = Genotype1[i];
+
+                Genotype1[i] = Genotype2[i];
+                Genotype2[i] = tempBit;
+            }
+
+        }
+
+    }
+    //Cell color calculation function
+    //source: @ebaratch
+    void CalcCellColor(){
+        double binary=0;
+        binary=G.ConvertBinary(this.genotype);
+        color= LongRainbowMap(1-1.0*(binary)/(Math.pow(2,G.allele_num)-1));
+
+    }
 
     private boolean Fuse() {
          double fusProb = G.rng.Double(); // need to create
@@ -72,10 +136,14 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
          if (fusProb < this.fusionRate & fusOptions > 0){
             int iTarget = G.fusHood[G.rng.Int(fusOptions)];
             Cell target = G.AllAgents().get(iTarget); 
-            target.Die(); //not sure if this works? maybe? eshan thinks it'll throw an error
+            int[] genotype1 = target.genotype;
+            int[] genotype2= this.genotype;
+            target.Die(); 
             //Q: is the index grabbed by the MapHood functions limited from 0-7 or does it span the whole grid?
             this.Die();
-            Cell fusedCell = G.NewAgentSQ(iTarget);
+            Blendind(genotype1, genotype2); //create mixed genotype
+            Cell fusedCell = G.NewAgentSQ(iTarget);  
+            fusedCell.genotype = genotype2;
             fusedCell.cellType = "f";
             fusedCell.deathRate = G.fusDieProb;
             fusedCell.resistanceRate = G.fusMutProb;
