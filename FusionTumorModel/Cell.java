@@ -16,7 +16,8 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
     //making these cell-type specific (instead of model-specific) so unique phenotypic behaviors can be adopted later
     //double mutationRate; 
     double divRate;
-    double resistanceRate;
+    //double resistanceRate; //DIFFERENCE: resistanceRate is the probability of a cell becoming resistant upon division, referring to the phenotypic change
+    double mutRate; //DIFFERENCE: mutRate is the probability of a cell becoming resistant upon division, referring to the genetic change
     double deathRate;
     double fusionRate;
     
@@ -47,9 +48,9 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
         return this.deathRate;
     }
 
-    public double getResistanceRate() {
-        return this.resistanceRate;
-    }
+    // public double getResistanceRate() {
+    //     return this.resistanceRate;
+    // }
 
     public void setDivRate(double newDivRate) {
         this.divRate = newDivRate;
@@ -78,7 +79,7 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
             Cell fusedCell = G.NewAgentSQ(iTarget);
             fusedCell.cellType = "f";
             fusedCell.deathRate = G.fusDieProb;
-            fusedCell.resistanceRate = G.fusMutProb;
+            //fusedCell.resistanceRate = G.fusMutProb;
             fusedCell.divRate = G.fusDivProb;
             G.UpdateCellCounts(fusedCell);
             return true;
@@ -105,21 +106,23 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
              int iDaughter = G.divHood[G.rng.Int(divOptions)];
              Cell daughter = G.NewAgentSQ(iDaughter);
 
-                if( this.resistanceRate > 0){
-                    if (G.rng.Double() < resistanceRate) {
-                        daughter.cellType = "r";
-                        daughter.deathRate = G.resDieProb;
-                        daughter.divRate = G.resDivProb;
-                        daughter.resistanceRate = G.resMutProb;
-                        G.UpdateCellCounts(daughter);
-                        return true;
-                    }
-                }
+
+
+                // if( this.resistanceRate > 0){
+                //     if (G.rng.Double() < resistanceRate) {
+                //         daughter.cellType = "r";
+                //         daughter.deathRate = G.resDieProb;
+                //         daughter.divRate = G.resDivProb;
+                //         daughter.resistanceRate = G.resMutProb;
+                //         G.UpdateCellCounts(daughter);
+                //         return true;
+                //     }
+                // }
                 // else inherit the properties of this cell
                 //TODO: update later to  introduce more heterogeneity with division, even within cell types
                 daughter.cellType = this.cellType;
                 daughter.deathRate = this.deathRate;
-                daughter.resistanceRate = this.resistanceRate;
+                //daughter.resistanceRate = this.resistanceRate;
                 daughter.divRate = this.divRate;
                 G.UpdateCellCounts(daughter);
                 return true;
