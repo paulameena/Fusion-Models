@@ -80,6 +80,10 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     double initDensity = 0.01;
     String modelType = "drf";
     boolean fusion_present = false;
+
+    int genLength = 20; //length of genome
+    int[] wildtype = new int[genLength]; //wildtype genotype
+
     
     /*------------------------------------------
                 MODEL TRACKING
@@ -220,17 +224,18 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
             }
         for (int i = 0; i < nCoords ; i++) {
                 Cell c = NewAgentSQ(coords[i]);
-                if (rng.Double() < initResProb) {
-                    c.cellType = "r";
-                    c.divRate = resDivProb;
-                    c.deathRate = resDieProb;
-                    //c.resistanceRate = resMutProb; //already resistant! so should be 0
-                } else {
-                    c.cellType = "p";
-                    c.divRate = parDivProb;
-                    c.deathRate = parDieProb;
+                // if (rng.Double() < initResProb) {
+                //     c.cellType = "r";
+                //     c.divRate = resDivProb;
+                //     c.deathRate = resDieProb;
+                //     //c.resistanceRate = resMutProb; //already resistant! so should be 0
+                // } else {
+                c.cellType = "p";
+                c.divRate = parDivProb;
+                c.deathRate = parDieProb;
+                c.genotype = wildtype;
                     //c.resistanceRate = parMutProb;
-                }
+                //}
         UpdateCellCounts(c);
         }
     }

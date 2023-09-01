@@ -11,7 +11,7 @@ import java.lang.String;
 
 public class Cell extends AgentSQ2Dunstackable<Fusion>{
     //cell characteristics
-     String cellType; //options are p, r, or f
+    String cellType; //options are p, r, or f
     
     //making these cell-type specific (instead of model-specific) so unique phenotypic behaviors can be adopted later
     //double mutationRate; 
@@ -20,6 +20,7 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
     double mutRate; //DIFFERENCE: mutRate is the probability of a cell becoming resistant upon division, referring to the genetic change
     double deathRate;
     double fusionRate;
+    int[] genotype;
     
 
     //CONSTRUCTOR NOT NEEDED ACCORDING TO HAL DOCUMENTATION?
@@ -89,6 +90,17 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
          }
     }
 
+    //Function changing a random 0 into a 1 in the genome vector
+    void Mutate(){
+
+        int indexMut=G.rng.Int(G.alleleNum);
+        if (this.genotype[indexMut]==0){
+            this.genotype[indexMut]=1;
+        }
+
+        SetCellColor();
+    }
+
     private boolean Die(){
         if (G.rng.Double() < this.deathRate) {
             G.UpdateCellDeath(this);
@@ -106,7 +118,11 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
              int iDaughter = G.divHood[G.rng.Int(divOptions)];
              Cell daughter = G.NewAgentSQ(iDaughter);
 
-
+                if( this.mutRate > 0){
+                    if (G.rng.Double() < this.mutRate) {
+                       daughter.genotype = 
+                    }
+                }
 
                 // if( this.resistanceRate > 0){
                 //     if (G.rng.Double() < resistanceRate) {
