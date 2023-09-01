@@ -72,7 +72,11 @@ public class Fusion extends AgentGrid2D<Cell>{
     //double replicationRate = 0.2; // birth probability
     //double deathRate = 0.01; // death probability
     //double fusionRate = 0.1; //fusion probability
+<<<<<<< HEAD
     double initResProb = 0.1; // initiL resistant cell proportion
+=======
+    double initResProb = 0; // mutation probability for initial seeding, for now set to 0 to imitate Andriy's paper
+>>>>>>> 9f1cd7762655457b35f7b218a06e13f7295bbde9
 
     //int[] divHood = Util.MooreHood(false); // 8 neighbors-- doesn't make sense for fusion 
     public double initRadius = 10;
@@ -82,6 +86,10 @@ public class Fusion extends AgentGrid2D<Cell>{
     double initDensity = 0.01;
     String modelType = "drf";
     boolean fusion_present = false;
+
+    int genLength = 20; //length of genome
+    int[] wildtype = new int[genLength]; //wildtype genotype
+
     
     /*------------------------------------------
                 MODEL TRACKING
@@ -113,9 +121,11 @@ public class Fusion extends AgentGrid2D<Cell>{
     double resDieProb = 0.01; // resistant death probability
     double fusDieProb = 0.01; // fused death probability
 
-    double parMutProb = 0.0001; // parental mutation probability
-    double resMutProb = 0; // resistant mutation probability
-    double fusMutProb = 0; // fused mutation probability
+
+    //TODO:can make these for phenotypic mutations (for conferring resistance) later
+    double parMutProb = 0.01; // parental mutation probability
+    // double resMutProb = 0; // resistant mutation probability
+    double fusMutProb = 0.01; // fused mutation probability
 
     double parDivProb = 0.2; // parental replication probability
     double resDivProb = 0.1; // resistant replication probability
@@ -154,7 +164,7 @@ public class Fusion extends AgentGrid2D<Cell>{
     }
     public void SetMutProbs(double parProb, double resProb, double fusProb) {
         this.parMutProb = parProb;
-        this.resMutProb = resProb;
+        // this.resMutProb = resProb;
         this.fusMutProb = fusProb;
     }
 
@@ -305,17 +315,18 @@ public class Fusion extends AgentGrid2D<Cell>{
             }
         for (int i = 0; i < nCoords ; i++) {
                 Cell c = NewAgentSQ(coords[i]);
-                if (rng.Double() < initResProb) {
-                    c.cellType = "r";
-                    c.divRate = resDivProb;
-                    c.deathRate = resDieProb;
-                    c.resistanceRate = resMutProb; //already resistant! so should be 0
-                } else {
-                    c.cellType = "p";
-                    c.divRate = parDivProb;
-                    c.deathRate = parDieProb;
-                    c.resistanceRate = parMutProb;
-                }
+                // if (rng.Double() < initResProb) {
+                //     c.cellType = "r";
+                //     c.divRate = resDivProb;
+                //     c.deathRate = resDieProb;
+                //     //c.resistanceRate = resMutProb; //already resistant! so should be 0
+                // } else {
+                c.cellType = "p";
+                c.divRate = parDivProb;
+                c.deathRate = parDieProb;
+                c.genotype = wildtype;
+                    //c.resistanceRate = parMutProb;
+                //}
         UpdateCellCounts(c);
         }
     }

@@ -32,19 +32,24 @@ import Framework.Util.*;
 public class Cell extends AgentSQ2Dunstackable<Fusion>{
     //cell characteristics
     String cellType; //options are p, r, or f
+<<<<<<< HEAD
     int color; //color of cell in visualization
     boolean dead; //has the cell been exhausted yet
     int[] genotype; //genotype of cell (0 = wildtype, 1 = mutation)
     //double cell_radius; //radius of cell
 
     
+=======
+>>>>>>> 9f1cd7762655457b35f7b218a06e13f7295bbde9
     
     //making these cell-type specific (instead of model-specific) so unique phenotypic behaviors can be adopted later
     //double mutationRate; 
     double divRate;
-    double resistanceRate;
+    //double resistanceRate; //DIFFERENCE: resistanceRate is the probability of a cell becoming resistant upon division, referring to the phenotypic change
+    double mutRate; //DIFFERENCE: mutRate is the probability of a cell becoming resistant upon division, referring to the genetic change
     double deathRate;
     double fusionRate;
+    int[] genotype;
     
 
     //CONSTRUCTOR NOT NEEDED ACCORDING TO HAL DOCUMENTATION?
@@ -85,9 +90,9 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
         return this.deathRate;
     }
 
-    public double getResistanceRate() {
-        return this.resistanceRate;
-    }
+    // public double getResistanceRate() {
+    //     return this.resistanceRate;
+    // }
 
     public void setDivRate(double newDivRate) {
         this.divRate = newDivRate;
@@ -146,7 +151,7 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
             fusedCell.genotype = genotype2;
             fusedCell.cellType = "f";
             fusedCell.deathRate = G.fusDieProb;
-            fusedCell.resistanceRate = G.fusMutProb;
+            //fusedCell.resistanceRate = G.fusMutProb;
             fusedCell.divRate = G.fusDivProb;
             G.UpdateCellCounts(fusedCell);
             return true;
@@ -154,6 +159,17 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
          else {
             return false;
          }
+    }
+
+    //Function changing a random 0 into a 1 in the genome vector
+    void Mutate(){
+
+        int indexMut=G.rng.Int(G.alleleNum);
+        if (this.genotype[indexMut]==0){
+            this.genotype[indexMut]=1;
+        }
+
+        SetCellColor();
     }
 
     private boolean Die(){
@@ -173,21 +189,27 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
              int iDaughter = G.divHood[G.rng.Int(divOptions)];
              Cell daughter = G.NewAgentSQ(iDaughter);
 
-                if( this.resistanceRate > 0){
-                    if (G.rng.Double() < resistanceRate) {
-                        daughter.cellType = "r";
-                        daughter.deathRate = G.resDieProb;
-                        daughter.divRate = G.resDivProb;
-                        daughter.resistanceRate = G.resMutProb;
-                        G.UpdateCellCounts(daughter);
-                        return true;
+                if( this.mutRate > 0){
+                    if (G.rng.Double() < this.mutRate) {
+                       daughter.genotype = 
                     }
                 }
+
+                // if( this.resistanceRate > 0){
+                //     if (G.rng.Double() < resistanceRate) {
+                //         daughter.cellType = "r";
+                //         daughter.deathRate = G.resDieProb;
+                //         daughter.divRate = G.resDivProb;
+                //         daughter.resistanceRate = G.resMutProb;
+                //         G.UpdateCellCounts(daughter);
+                //         return true;
+                //     }
+                // }
                 // else inherit the properties of this cell
                 //TODO: update later to  introduce more heterogeneity with division, even within cell types
                 daughter.cellType = this.cellType;
                 daughter.deathRate = this.deathRate;
-                daughter.resistanceRate = this.resistanceRate;
+                //daughter.resistanceRate = this.resistanceRate;
                 daughter.divRate = this.divRate;
                 G.UpdateCellCounts(daughter);
                 return true;
