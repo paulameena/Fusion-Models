@@ -70,7 +70,7 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     //double replicationRate = 0.2; // birth probability
     //double deathRate = 0.01; // death probability
     //double fusionRate = 0.1; //fusion probability
-    double initResProb = 0.1; // mutation probability for initial seeding
+    double initResProb = 0; // mutation probability for initial seeding, for now set to 0 to imitate Andriy's paper
 
     //int[] divHood = Util.MooreHood(false); // 8 neighbors-- doesn't make sense for fusion 
     public double initRadius = 10;
@@ -102,9 +102,11 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     double resDieProb = 0.01; // resistant death probability
     double fusDieProb = 0.01; // fused death probability
 
-    double parMutProb = 0.0001; // parental mutation probability
-    double resMutProb = 0; // resistant mutation probability
-    double fusMutProb = 0; // fused mutation probability
+
+    //TODO:can make these for phenotypic mutations (for conferring resistance) later
+    double parMutProb = 0.01; // parental mutation probability
+    // double resMutProb = 0; // resistant mutation probability
+    double fusMutProb = 0.01; // fused mutation probability
 
     double parDivProb = 0.2; // parental replication probability
     double resDivProb = 0.1; // resistant replication probability
@@ -147,7 +149,7 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     }
     public void SetMutProbs(double parProb, double resProb, double fusProb) {
         this.parMutProb = parProb;
-        this.resMutProb = resProb;
+        // this.resMutProb = resProb;
         this.fusMutProb = fusProb;
     }
 
@@ -222,12 +224,12 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
                     c.cellType = "r";
                     c.divRate = resDivProb;
                     c.deathRate = resDieProb;
-                    c.resistanceRate = resMutProb; //already resistant! so should be 0
+                    //c.resistanceRate = resMutProb; //already resistant! so should be 0
                 } else {
                     c.cellType = "p";
                     c.divRate = parDivProb;
                     c.deathRate = parDieProb;
-                    c.resistanceRate = parMutProb;
+                    //c.resistanceRate = parMutProb;
                 }
         UpdateCellCounts(c);
         }
