@@ -11,6 +11,8 @@ import HAL.Util;
 import HAL.GridsAndAgents.AgentGrid2D;
 import HAL.Tools.FileIO;
 
+//import FusionProject.Spatial.AgentBasedModels.Models.FusionModelEtienne.FusionModel2DHeterogeneityContactInhibition.*;
+
 import java.time.LocalDateTime;
 //import java.util.Dictionary;
 import java.util.Hashtable;
@@ -35,7 +37,7 @@ Note: the way the HAL library is defined; agents are not constructed by you but 
 */
 
 
-public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
+public class Fusion extends AgentGrid2D<Cell>{
    /*------------------------------------------
                  CONSTRUCTORS
      ------------------------------------------*/
@@ -52,10 +54,10 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
         this.yDim = 100;
     }
 
-    @Override
-    public void SetupConstructors() {
-        _PassAgentConstructor(Cell.class);
-    }
+    // @Override
+    // public void SetupConstructors() {
+    //     _PassAgentConstructor(Cell.class);
+    // }
     
     /*------------------------------------------
                 MODEL PARAMETERS
@@ -70,7 +72,7 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     //double replicationRate = 0.2; // birth probability
     //double deathRate = 0.01; // death probability
     //double fusionRate = 0.1; //fusion probability
-    double initResProb = 0.1; // mutation probability for initial seeding
+    double initResProb = 0.1; // initiL resistant cell proportion
 
     //int[] divHood = Util.MooreHood(false); // 8 neighbors-- doesn't make sense for fusion 
     public double initRadius = 10;
@@ -86,6 +88,9 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
      ------------------------------------------*/
 
     Hashtable<String, Integer> cellTypeCounts = new Hashtable<>();
+    int fusionctr = 0;
+    int[] TypeRepresentants;
+    int clonalRichness = 0;
     int timeIndex = 0;
     boolean saveModelState = false;
     FileIO cellTypeCountLogFile = null;
@@ -95,6 +100,12 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     /*------------------------------------------
                 CELL PARAMETERS
      ------------------------------------------*/
+
+     //genotype things, as defined by @ebaratch
+    int allele_num = 20;
+    int[] wildtype_genotype = new int[allele_num];
+    int max_score;
+
 
     //TODO: might want to change these to be functions/distributions, to create more variability between the cell types/introduce more heterogeneity
     //index = 0 is parental, index = 1 is resistant, index = 2 will be fused
@@ -109,10 +120,6 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
     double parDivProb = 0.2; // parental replication probability
     double resDivProb = 0.1; // resistant replication probability
     double fusDivProb = 0.1; // fused replication probability
-
-
-   
-
 
     double fusionRate = 0.0001; //TODO: change this to be specific to different cell types e.g. only parental-res. can fuse!
 
@@ -177,12 +184,92 @@ public class Fusion extends AgentGrid2D<Cell> implements SerializableModel{
         this.nReplicates = nReplicates;
         this.timeStep= timeStep;
     }
+/*---------------------------------------------------------------------
+               FUSION MODEL UTILITY FUNCTIONS-- ADAPTED FROM @EBARATCH
+     -------------------------------------------------------------------*/
+    //Function Converting a bit array into vector into the numerical value in base 2
+    //source: @ebaratch
+    int ConvertBinary(int[] BinaryVector){
+        int total=0;
+        for (int i=0;i<BinaryVector.length;i++){
+            total=total+BinaryVector[i]*(int)Math.pow(2,i);
+        }
+        return total;
+    }
+    
+     //Function computing Shanon Diversity Index of the population
+    //source: @ebaratch
+    private double ComputeShannon(){
+        double Shanon=0;
+        int GenoInt=0;
+        int TotalCell=0;
+        double sumProp=0;
+
+        for (Cell c:this){
+            TotalCell=TotalCell+1;
+            GenoInt=ConvertBinary(c.genotype);
+            TypeRepresentants[GenoInt]=TypeRepresentants[GenoInt]+1;
+        }
+        for (int i=0;i<max_score;i++){
+            if(TypeRepresentants[i]>0){
+                Shanon=Shanon-(TypeRepresentants[i]*1.0/TotalCell)*Math.log(TypeRepresentants[i]*1.0/TotalCell);
+                System.out.println("checkProp="+i+(float)TypeRepresentants[i]/TotalCell);
+                sumProp=sumProp+(float)TypeRepresentants[i]/TotalCell;
+            }
+            TypeRepresentants[i]=0;
+        }
+        System.out.println("checkPop="+TotalCell+","+sumProp);
+        return Shanon;
+    }
+
+     //Function computing Total number of cancer cells
+     //source: @ebaratch
+     double ComputeTotal(){
+        int TotalCell=0;
+
+        for (Cell c:this){
+            TotalCell=TotalCell+1;
+        }
+
+        System.out.println("checkPop="+TotalCell);
+        return TotalCell;
+    }
+
+    //Function computing the amount of mutations in a genome vector
+    int Score(int[] BinaryVector){
+        int total=0;
+        for (int i=0;i<BinaryVector.length;i++){
+            if (BinaryVector[i]>0){
+                total=total+BinaryVector[i];
+            }
+        }
+        return total;
+    }
+    double ComputeRichness(){
+        int Richness=0;
+        int GenoInt=0;
 
 
+        for (Cell c:this){
+            GenoInt=ConvertBinary(c.genotype);
+            TypeRepresentants[GenoInt]=TypeRepresentants[GenoInt]+1;
+        }
+        for (int i=0;i<max_score;i++){
+            if(TypeRepresentants[i]>0){
+                Richness=Richness+1;
+            }
+            TypeRepresentants[i]=0;
+        }
+
+        return Richness;
+    }
     /*------------------------------------------
                 KEY MODEL FUNCTIONS
      ------------------------------------------*/
      //NOTE: ADAPTED FROM HAL DOCUMENTATION AND BIRTHDEATH.JAVA FROM HAL DOCS
+     //SOME FUNCTIONS WERE DEFINED BY @EBARATCH BUT INHERITANCE DIDN'T WORK SO I COPIED THEM HERE
+
+  
 
     private void turnFusionOff() {
          if (!this.fusion_present) { //make sure to set fusion rate to 0 if fusion is toggled off for this run
