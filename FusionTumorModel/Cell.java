@@ -16,10 +16,10 @@ import HAL.GridsAndAgents.AgentSQ2Dunstackable;
 import java.lang.String;
 import java.io.PrintWriter;
 import java.util.BitSet;
-import Framework.Gui.Window2DOpenGL;
+// import Framework.Gui.Window2DOpenGL;
 import HAL.Util.*;
 import HAL.Gui.*;
-import Framework.Util.*;
+// import Framework.Util.*;
 // import HAL.GridsAndAgents.AgentGrid2D;
 // import HAL.Rand;
 // import HAL.Util;
@@ -32,15 +32,12 @@ import Framework.Util.*;
 public class Cell extends AgentSQ2Dunstackable<Fusion>{
     //cell characteristics
     String cellType; //options are p, r, or f
-<<<<<<< HEAD
     int color; //color of cell in visualization
     boolean dead; //has the cell been exhausted yet
     int[] genotype; //genotype of cell (0 = wildtype, 1 = mutation)
     //double cell_radius; //radius of cell
 
     
-=======
->>>>>>> 9f1cd7762655457b35f7b218a06e13f7295bbde9
     
     //making these cell-type specific (instead of model-specific) so unique phenotypic behaviors can be adopted later
     //double mutationRate; 
@@ -48,9 +45,7 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
     //double resistanceRate; //DIFFERENCE: resistanceRate is the probability of a cell becoming resistant upon division, referring to the phenotypic change
     double mutRate; //DIFFERENCE: mutRate is the probability of a cell becoming resistant upon division, referring to the genetic change
     double deathRate;
-    double fusionRate;
-    int[] genotype;
-    
+    double fusionRate;    
 
     //CONSTRUCTOR NOT NEEDED ACCORDING TO HAL DOCUMENTATION?
 
@@ -129,7 +124,7 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
     void CalcCellColor(){
         double binary=0;
         binary=G.ConvertBinary(this.genotype);
-        color= LongRainbowMap(1-1.0*(binary)/(Math.pow(2,G.allele_num)-1));
+        // color= LongRainbowMap(1-1.0*(binary)/(Math.pow(2,G.allele_num)-1));
 
     }
 
@@ -164,12 +159,12 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
     //Function changing a random 0 into a 1 in the genome vector
     void Mutate(){
 
-        int indexMut=G.rng.Int(G.alleleNum);
+        int indexMut=G.rng.Int(G.allele_num);
         if (this.genotype[indexMut]==0){
             this.genotype[indexMut]=1;
         }
 
-        SetCellColor();
+        // SetCellColor();
     }
 
     private boolean Die(){
@@ -191,7 +186,7 @@ public class Cell extends AgentSQ2Dunstackable<Fusion>{
 
                 if( this.mutRate > 0){
                     if (G.rng.Double() < this.mutRate) {
-                       daughter.genotype = 
+                       daughter.genotype = this.genotype;
                     }
                 }
 

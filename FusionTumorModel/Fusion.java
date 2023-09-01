@@ -72,11 +72,7 @@ public class Fusion extends AgentGrid2D<Cell>{
     //double replicationRate = 0.2; // birth probability
     //double deathRate = 0.01; // death probability
     //double fusionRate = 0.1; //fusion probability
-<<<<<<< HEAD
-    double initResProb = 0.1; // initiL resistant cell proportion
-=======
     double initResProb = 0; // mutation probability for initial seeding, for now set to 0 to imitate Andriy's paper
->>>>>>> 9f1cd7762655457b35f7b218a06e13f7295bbde9
 
     //int[] divHood = Util.MooreHood(false); // 8 neighbors-- doesn't make sense for fusion 
     public double initRadius = 10;
