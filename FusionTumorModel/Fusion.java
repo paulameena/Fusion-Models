@@ -83,9 +83,6 @@ public class Fusion extends AgentGrid2D<Cell>{
     String modelType = "drf";
     boolean fusion_present = false;
 
-    int genLength = 20; //length of genome
-    int[] wildtype = new int[genLength]; //wildtype genotype
-
     
     /*------------------------------------------
                 MODEL TRACKING
@@ -242,6 +239,7 @@ public class Fusion extends AgentGrid2D<Cell>{
     }
 
     //Function computing the amount of mutations in a genome vector
+    //source: @ebaratch
     int Score(int[] BinaryVector){
         int total=0;
         for (int i=0;i<BinaryVector.length;i++){
@@ -251,6 +249,9 @@ public class Fusion extends AgentGrid2D<Cell>{
         }
         return total;
     }
+
+    //Function computing the richness of the population
+    //source: @ebaratch
     double ComputeRichness(){
         int Richness=0;
         int GenoInt=0;
@@ -320,7 +321,7 @@ public class Fusion extends AgentGrid2D<Cell>{
                 c.cellType = "p";
                 c.divRate = parDivProb;
                 c.deathRate = parDieProb;
-                c.genotype = wildtype;
+                c.genotype = wildtype_genotype;
                     //c.resistanceRate = parMutProb;
                 //}
         UpdateCellCounts(c);
